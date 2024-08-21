@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "654733888198",
+    "project_id": "fitlife-18da4",
+    "storage_bucket": "fitlife-18da4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654733888198:android:8ab46547f6669a527465c7",
+        "android_client_info": {
+          "package_name": "com.fitlife"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_eBFd9PxK4VNQgtPpHR2RAJ79HY8BqlY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
