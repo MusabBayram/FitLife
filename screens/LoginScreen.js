@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,35 +8,46 @@ import {
   Animated,
   TextInput,
 } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Svg, Path, Text as SvgText, TextPath } from 'react-native-svg';
 
 const screenWidth = Dimensions.get('window').width;
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const [showSignUp, setShowSignUp] = useState(true);
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // SignUp ekranına giderken animasyon
+  // SignUp ekranına geçiş animasyonu
   const navigateToSignUp = () => {
     Animated.timing(animatedValue, {
       toValue: 1, // 1 değerine gitmesini sağla (tam dolu daire)
       duration: 500,
       useNativeDriver: false,
     }).start(() => {
-      navigation.navigate('SignUp');
+      setShowSignUp(true); // SignUp formunu göster
+      Animated.timing(fadeAnim, {
+        toValue: 1, // Saydamlık 1 olacak (fade-in)
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
     });
   };
 
   // Geri dönüldüğünde animasyonu sıfırla
-  useFocusEffect(
-    React.useCallback(() => {
+  const navigateBackToLogin = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0, // Saydamlık 0 olacak (fade-out)
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowSignUp(false); // SignUp formunu gizle
       Animated.timing(animatedValue, {
         toValue: 0, // Orijinal pozisyona dön
         duration: 500,
         useNativeDriver: false,
       }).start();
-    }, [])
-  );
+    });
+  };
 
   // Yarım daire stili animasyonla büyüyecek
   const halfCircleStyle = {
@@ -61,36 +72,91 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>LOGO</Text>
-      <Text style={styles.welcomeText}>Welcome User</Text>
-      <Text style={styles.signInText}>Sign in to continue</Text>
+      {/* Eğer SignUp ekranı gösterilmiyorsa Login ekranını göster */}
+      {!showSignUp && (
+        <>
+          <Text style={styles.logo}>LOGO</Text>
+          <Text style={styles.welcomeText}>Welcome User</Text>
+          <Text style={styles.signInText}>Sign in to continue</Text>
 
-      {/* Giriş Alanları */}
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#999"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#999"
-        secureTextEntry
-      />
+          {/* Giriş Alanları */}
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+          />
 
-      {/* Login Butonu */}
-      <TouchableOpacity style={styles.loginButton}>
-        <Text style={styles.loginButtonText}>Login</Text>
-      </TouchableOpacity>
+          {/* Login Butonu */}
+          <TouchableOpacity style={styles.loginButton}>
+            <Text style={styles.loginButtonText}>Login</Text>
+          </TouchableOpacity>
+        </>
+      )}
 
-      <Animated.View style={[styles.halfCircle, halfCircleStyle]} />
-      <TouchableOpacity onPress={navigateToSignUp} style={styles.signUpButton}>
-        <Text style={styles.signUpText}>Don't have an account? Sign Up</Text>
-      </TouchableOpacity>
+      {/* Eğer SignUp ekranı gösteriliyorsa SignUp formunu göster */}
+      {showSignUp && (
+        <Animated.View style={{ opacity: fadeAnim }}>
+          <Text style={styles.logo}>Sign Up</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+          />
+          <TouchableOpacity onPress={navigateBackToLogin} style={styles.loginButton}>
+            <Text style={styles.loginButtonText}>Go Back to Login</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
+
+      <Animated.View style={[styles.halfCircle, halfCircleStyle]}>
+        {!showSignUp && (
+          <Svg height={screenWidth / 1.75} width={screenWidth}>
+            <Path
+              id="path"
+              d={`M 0 ${screenWidth / 1.75} A ${screenWidth / 2} ${screenWidth / 2} 0 0 1 ${screenWidth} ${screenWidth / 1.75}`}
+              fill="none"
+            />
+            <SvgText fill="#fff" fontSize="16" fontWeight="bold">
+              <TextPath
+                href="#path"
+                startOffset="37%"
+                textAnchor="middle"
+              >
+                Don't have an account?
+              </TextPath>
+            </SvgText>
+          </Svg>
+        )}
+      </Animated.View>
+
+      {!showSignUp && (
+        <TouchableOpacity onPress={navigateToSignUp} style={styles.signUpButton}>
+          <Text style={styles.signUpText}>Sign Up</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -148,7 +214,7 @@ const styles = StyleSheet.create({
     bottom: 20,
   },
   signUpText: {
-    color: '#000',
+    color: '#fff',
     fontSize: 16,
   },
 });
