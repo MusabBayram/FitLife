@@ -1,21 +1,68 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Animated,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = ({ navigation }) => {
+const screenWidth = Dimensions.get('window').width;
+
+const LoginScreen = () => {
+  const navigation = useNavigation();
+  const animatedValue = useRef(new Animated.Value(0)).current; // Animasyon için state
+
+  const navigateToSignUp = () => {
+    Animated.timing(animatedValue, {
+      toValue: 1, // 1 değerine gitmesini sağla (tam dolu daire)
+      duration: 500, // Animasyon süresi
+      useNativeDriver: false,
+    }).start(() => {
+      navigation.navigate('SignUp');
+    });
+  };
+
+  const resetCircle = () => {
+    Animated.timing(animatedValue, {
+      toValue: 0, // Orijinal pozisyona dön
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  // HalfCircle stili animasyonla büyüyecek
+  const halfCircleStyle = {
+    width: animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [screenWidth, screenWidth * 2], // Başlangıçtan tam daireye geçiş
+    }),
+    height: animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [screenWidth, screenWidth * 2], // Yüksekliği ekran genişliğine eşit
+    }),
+    borderRadius: animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [screenWidth, screenWidth * 2], // Tam bir daire oluşturuyoruz
+    }),
+    backgroundColor: '#FFD700',
+    bottom: animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [-screenWidth / 2, 0], // Yarım daireyi ekranın altında gösterecek şekilde ayarla
+    }),
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.logo}>LOGO</Text>
-      <Text style={styles.welcome}>Welcome User</Text>
-      <Text style={styles.signIn}>Sign in to continue</Text>
-      <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" />
-      <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" secureTextEntry />
-      <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('Home')}>
-        <Text style={styles.loginButtonText}>LOGIN</Text>
-      </TouchableOpacity>
+      <Text style={styles.welcomeText}>Welcome User</Text>
+      <Text style={styles.signInText}>Sign in to continue</Text>
 
-      {/* Sign Up Geçiş Butonu */}
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.signUpLink}>Don't have an account? Sign Up</Text>
+      <Animated.View style={[styles.halfCircle, halfCircleStyle]} />
+      <TouchableOpacity onPress={navigateToSignUp} style={styles.signUpButton}>
+        <Text style={styles.signUpText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
     </View>
   );
@@ -24,54 +71,39 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#000',
-    paddingHorizontal: 20,
   },
   logo: {
+    color: '#fff',
     fontSize: 36,
-    fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 20,
   },
-  welcome: {
+  welcomeText: {
+    color: '#fff',
     fontSize: 24,
-    color: '#fff',
-    marginBottom: 10,
   },
-  signIn: {
+  signInText: {
+    color: '#fff',
     fontSize: 16,
+    marginBottom: 100,
+  },
+  halfCircle: {
+    position: 'absolute',
+    width: screenWidth,
+    height: screenWidth, // Yüksekliği ekran genişliğine eşit
+    borderRadius: screenWidth, // Tam bir daire oluşturuyoruz
+    backgroundColor: '#FFD700', // Sarı yarım daire
+    bottom: -screenWidth / 2, // Yarım daireyi ekranın altında gösterecek şekilde ayarlıyoruz
+  },
+  signUpButton: {
+    position: 'absolute',
+    bottom: 20,
+  },
+  signUpText: {
     color: '#fff',
-    marginBottom: 30,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#333',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    color: '#fff',
-    marginBottom: 20,
-  },
-  loginButton: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#FFD700',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  loginButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  signUpLink: {
     fontSize: 16,
-    color: '#FFD700',
-    marginTop: 20,
   },
 });
 
