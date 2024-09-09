@@ -13,9 +13,9 @@ import { Svg, Path, Text as SvgText, TextPath } from 'react-native-svg';
 const screenWidth = Dimensions.get('window').width;
 
 const LoginScreen = () => {
-  const [showSignUp, setShowSignUp] = useState(true);
+  const [showSignUp, setShowSignUp] = useState(false); // Formun görünürlüğünü kontrol etmek için
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Fade animasyonu
 
   // SignUp ekranına geçiş animasyonu
   const navigateToSignUp = () => {
@@ -24,7 +24,7 @@ const LoginScreen = () => {
       duration: 500,
       useNativeDriver: false,
     }).start(() => {
-      setShowSignUp(true); // SignUp formunu göster
+      setShowSignUp(true); // Daire genişleyince formu gösteriyoruz
       Animated.timing(fadeAnim, {
         toValue: 1, // Saydamlık 1 olacak (fade-in)
         duration: 500,
@@ -33,14 +33,14 @@ const LoginScreen = () => {
     });
   };
 
-  // Geri dönüldüğünde animasyonu sıfırla
+  // Login ekranına geri dönüş animasyonu
   const navigateBackToLogin = () => {
     Animated.timing(fadeAnim, {
       toValue: 0, // Saydamlık 0 olacak (fade-out)
       duration: 500,
       useNativeDriver: true,
     }).start(() => {
-      setShowSignUp(false); // SignUp formunu gizle
+      setShowSignUp(false); // Formu gizliyoruz
       Animated.timing(animatedValue, {
         toValue: 0, // Orijinal pozisyona dön
         duration: 500,
@@ -72,8 +72,38 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Eğer SignUp ekranı gösterilmiyorsa Login ekranını göster */}
-      {!showSignUp && (
+      {/* Eğer showSignUp true ise Signup formunu gösteriyoruz */}
+      {showSignUp ? (
+        <Animated.View style={{ opacity: fadeAnim, zIndex: 2, width: '100%', justifyContent: 'center',
+          alignItems: 'center', }}>
+          <Text style={styles.logo}>Sign Up</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+          />
+
+          <TouchableOpacity style={styles.signUpSubmitButton}>
+            <Text style={styles.signUpSubmitButtonText}>Submit</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={navigateBackToLogin} style={styles.loginButton}>
+            <Text style={styles.loginButtonText}>Go Back to Login</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      ) : (
         <>
           <Text style={styles.logo}>LOGO</Text>
           <Text style={styles.welcomeText}>Welcome User</Text>
@@ -100,59 +130,29 @@ const LoginScreen = () => {
         </>
       )}
 
-      {/* Eğer SignUp ekranı gösteriliyorsa SignUp formunu göster */}
-      {showSignUp && (
-        <Animated.View style={{ opacity: fadeAnim }}>
-          <Text style={styles.logo}>Sign Up</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Full Name"
-            placeholderTextColor="#999"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            secureTextEntry
-          />
-          <TouchableOpacity onPress={navigateBackToLogin} style={styles.loginButton}>
-            <Text style={styles.loginButtonText}>Go Back to Login</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      )}
-
+      {/* Animasyonlu Yarım Daire */}
       <Animated.View style={[styles.halfCircle, halfCircleStyle]}>
-        {!showSignUp && (
-          <Svg height={screenWidth / 1.75} width={screenWidth}>
-            <Path
-              id="path"
-              d={`M 0 ${screenWidth / 1.75} A ${screenWidth / 2} ${screenWidth / 2} 0 0 1 ${screenWidth} ${screenWidth / 1.75}`}
-              fill="none"
-            />
-            <SvgText fill="#fff" fontSize="16" fontWeight="bold">
-              <TextPath
-                href="#path"
-                startOffset="37%"
-                textAnchor="middle"
-              >
-                Don't have an account?
-              </TextPath>
-            </SvgText>
-          </Svg>
-        )}
+        <Svg height={screenWidth / 1.75} width={screenWidth}>
+          <Path
+            id="path"
+            d={`M 0 ${screenWidth / 1.75} A ${screenWidth / 2} ${screenWidth / 2} 0 0 1 ${screenWidth} ${screenWidth / 1.75}`}
+            fill="none"
+          />
+          <SvgText fill="#fff" fontSize="16" fontWeight="bold">
+            <TextPath
+              href="#path"
+              startOffset="37%"
+              textAnchor="middle"
+            >
+              Don't have an account?
+            </TextPath>
+          </SvgText>
+        </Svg>
       </Animated.View>
 
-      {!showSignUp && (
-        <TouchableOpacity onPress={navigateToSignUp} style={styles.signUpButton}>
-          <Text style={styles.signUpText}>Sign Up</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity onPress={navigateToSignUp} style={styles.signUpButton}>
+        <Text style={styles.signUpText}>Sign Up</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -212,6 +212,25 @@ const styles = StyleSheet.create({
   signUpButton: {
     position: 'absolute',
     bottom: 20,
+  },
+  signUpText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  signUpSubmitButton: {
+    backgroundColor: '#FFD700',
+    paddingVertical: 15,
+    width: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  signUpSubmitButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   signUpText: {
     color: '#fff',
