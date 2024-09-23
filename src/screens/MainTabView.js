@@ -1,51 +1,53 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // Tab ekranları
 const HomeScreen = () => (
   <View style={styles.screen}>
-    <Text>Home Screen</Text>
+    <Text style={styles.text}>Ana Sayfa</Text>
   </View>
 );
 
-const SearchScreen = () => (
+const ExploreScreen = () => (
   <View style={styles.screen}>
-    <Text>Search Screen</Text>
+    <Text style={styles.text}>Keşfet</Text>
   </View>
 );
 
-const ReelsScreen = () => (
+const MessagesScreen = () => (
   <View style={styles.screen}>
-    <Text>Reels Screen</Text>
+    <Text style={styles.text}>Mesajlar</Text>
   </View>
 );
 
 const ProfileScreen = () => (
   <View style={styles.screen}>
-    <Text>Profile Screen</Text>
+    <Text style={styles.text}>Profil</Text>
   </View>
 );
+
 
 // Tab Navigator
 const Tab = createBottomTabNavigator();
 
 const MainTabView = () => {
   return (
+    <>
+    <StatusBar translucent backgroundColor="transparent" barStyle="light-content" /> 
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Search') {
-            iconName = focused ? 'search' : 'search-outline';
-          } else if (route.name === 'Reels') {
-            iconName = focused ? 'movie' : 'movie-outline';
-          } else if (route.name === 'Profile') {
+          if (route.name === 'Ana Sayfa') {
+            iconName = focused ? 'home' : 'home';
+          } else if (route.name === 'Keşfet') {
+            iconName = focused ? 'search' : 'search';
+          } else if (route.name === 'Mesajlar') {
+            iconName = focused ? 'chat-bubble' : 'chat-bubble-outline';
+          } else if (route.name === 'Profil') {
             iconName = focused ? 'person' : 'person-outline';
           }
 
@@ -56,11 +58,12 @@ const MainTabView = () => {
         tabBarStyle: { backgroundColor: '#000' },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Search" component={SearchScreen} />
-      <Tab.Screen name="Reels" component={ReelsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Ana Sayfa" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Keşfet" component={ExploreScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Mesajlar" component={MessagesScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Profil" component={ProfileScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
+    </>
   );
 };
 
@@ -70,6 +73,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#000',
+    color: '#fff'
+  },
+  text: {
+    color: '#fff', 
+    fontSize: 18,
   },
 });
 
