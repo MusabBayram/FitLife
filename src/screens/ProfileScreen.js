@@ -1,139 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
-import LottieView from 'lottie-react-native';
+import firestore from '@react-native-firebase/firestore';
 
-const ProfileScreen = () => {
-  const [waterGoal, setWaterGoal] = useState(3000); // Su hedefi
-  const [waterIntake, setWaterIntake] = useState(1500); // Şu anki su tüketimi
-  const [inputWaterGoal, setInputWaterGoal] = useState(''); 
-  const [stepGoal, setStepGoal] = useState(10000); // Adım hedefi
-  const [currentSteps, setCurrentSteps] = useState(7500); // Şu anki adım sayısı
-  const [inputStepGoal, setInputStepGoal] = useState('');
-  const [sleepGoal, setSleepGoal] = useState(8); // Uyku hedefi (saat)
-  const [currentSleep, setCurrentSleep] = useState(6); // Şu anki uyku (saat)
-  const [inputSleepGoal, setInputSleepGoal] = useState(''); 
-  const [showConfetti, setShowConfetti] = useState(false);
+const ProfileScreen = ({ navigation }) => {
+  const [waterGoal, setWaterGoal] = useState(3000);
+  const [waterIntake, setWaterIntake] = useState(1500);
+  const [stepGoal, setStepGoal] = useState(10000);
+  const [currentSteps, setCurrentSteps] = useState(7500);
+  const [sleepGoal, setSleepGoal] = useState(8);
+  const [currentSleep, setCurrentSleep] = useState(6);
 
-  // Konfeti animasyonu tetikleme
   useEffect(() => {
-    if (waterIntake >= waterGoal || currentSteps >= stepGoal || currentSleep >= sleepGoal) {
-      console.log('Animasyon tetikleniyor');
-
-      setShowConfetti(true);
-    }
-  }, [waterIntake, currentSteps, currentSleep]);
-
-  // Hedef güncelleme işlemi
-  const handleGoalUpdate = () => {
-    if (inputWaterGoal) setWaterGoal(Number(inputWaterGoal));
-    if (inputStepGoal) setStepGoal(Number(inputStepGoal));
-    if (inputSleepGoal) setSleepGoal(Number(inputSleepGoal));
-
-    setInputWaterGoal('');
-    setInputStepGoal('');
-    setInputSleepGoal('');
-  };
+    // Firestore'dan hedefleri yükle
+    const loadGoals = async () => {
+      try {
+        const userDoc = await firestore().collection('users').doc('userId').get();
+        if (userDoc.exists) {
+          const data = userDoc.data();
+          setWaterGoal(data.waterGoal);
+          setStepGoal(data.stepGoal);
+          setSleepGoal(data.sleepGoal);
+        }
+      } catch (error) {
+        console.error("Hedefler yüklenemedi: ", error);
+      }
+    };
+    loadGoals();
+  }, []);
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Image source={{ uri: 'https://i.imgur.com/profile.jpg' }} style={styles.profileImage} />
-        <Text style={styles.name}>Musab Bayram</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Image source={{ uri: 'https://i.imgur.com/profile.jpg' }} style={styles.profileImage} />
+      <Text style={styles.name}>Musab Bayram</Text>
 
-        {/* Su Tüketimi */}
-        <Text style={styles.label}>Su Tüketimi</Text>
-        <ProgressBar progress={waterIntake / waterGoal} width={null} color="#FFD700" />
-        <Text style={styles.progressText}>{waterIntake}/{waterGoal} ml</Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.adjustButton} onPress={() => setWaterIntake(waterIntake - 250)}>
-            <Text style={styles.adjustButtonText}>-250 ml</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.adjustButton} onPress={() => setWaterIntake(waterIntake + 250)}>
-            <Text style={styles.adjustButtonText}>+250 ml</Text>
-          </TouchableOpacity>
-        </View>
+      <Text style={styles.label}>Su Tüketimi</Text>
+      <ProgressBar progress={waterIntake / waterGoal} width={null} color="#FFD700" />
+      <Text style={styles.progressText}>{waterIntake}/{waterGoal} ml</Text>
 
-        {/* Adım Sayısı */}
-        <Text style={styles.label}>Adım Sayısı</Text>
-        <ProgressBar progress={currentSteps / stepGoal} width={null} color="#FFD700" />
-        <Text style={styles.progressText}>{currentSteps}/{stepGoal} adım</Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.adjustButton} onPress={() => setCurrentSteps(currentSteps - 500)}>
-            <Text style={styles.adjustButtonText}>-500 adım</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.adjustButton} onPress={() => setCurrentSteps(currentSteps + 500)}>
-            <Text style={styles.adjustButtonText}>+500 adım</Text>
-          </TouchableOpacity>
-        </View>
+      <Text style={styles.label}>Adım Sayısı</Text>
+      <ProgressBar progress={currentSteps / stepGoal} width={null} color="#FFD700" />
+      <Text style={styles.progressText}>{currentSteps}/{stepGoal} adım</Text>
 
-        {/* Uyku */}
-        <Text style={styles.label}>Uyku</Text>
-        <ProgressBar progress={currentSleep / sleepGoal} width={null} color="#FFD700" />
-        <Text style={styles.progressText}>{currentSleep}/{sleepGoal} saat</Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.adjustButton} onPress={() => setCurrentSleep(currentSleep - 1)}>
-            <Text style={styles.adjustButtonText}>-1 saat</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.adjustButton} onPress={() => setCurrentSleep(currentSleep + 1)}>
-            <Text style={styles.adjustButtonText}>+1 saat</Text>
-          </TouchableOpacity>
-        </View>
+      <Text style={styles.label}>Uyku</Text>
+      <ProgressBar progress={currentSleep / sleepGoal} width={null} color="#FFD700" />
+      <Text style={styles.progressText}>{currentSleep}/{sleepGoal} saat</Text>
 
-        {/* Hedef Güncelleme */}
-        <Text style={styles.label}>Hedefleri Güncelle</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Yeni Su Hedefi"
-          keyboardType="numeric"
-          value={inputWaterGoal}
-          onChangeText={setInputWaterGoal}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Yeni Adım Hedefi"
-          keyboardType="numeric"
-          value={inputStepGoal}
-          onChangeText={setInputStepGoal}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Yeni Uyku Hedefi"
-          keyboardType="numeric"
-          value={inputSleepGoal}
-          onChangeText={setInputSleepGoal}
-        />
-        <TouchableOpacity onPress={handleGoalUpdate} style={styles.updateButton}>
-          <Text style={styles.buttonText}>Hedefleri Güncelle</Text>
-        </TouchableOpacity>
-
-        {/* Motivasyon Mesajı */}
-        <Text style={styles.motivationText}>Hadi biraz daha yürüyüş yapalım!</Text>
-
-        {/* Konfeti Animasyonu */}
-        {showConfetti && (
-  <LottieView
-    source={require('../assets/animations/confetti.json')}
-    autoPlay
-    loop={false}
-    style={{ zIndex: 1 }}
-    onAnimationFinish={() => setShowConfetti(false)}
-  />
-)}
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <TouchableOpacity 
+        style={styles.settingsButton} 
+        onPress={() => navigation.navigate('Settings', {
+          currentWaterGoal: waterGoal,
+          currentStepGoal: stepGoal,
+          currentSleepGoal: sleepGoal,
+        })}
+      >
+        <Text style={styles.settingsButtonText}>☰</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#000',
     padding: 20,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
   },
   profileImage: {
     width: 100,
@@ -159,47 +90,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 15,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+  settingsButton: {
+    position: 'absolute',
+    top: 10,
+    right: 20,
   },
-  adjustButton: {
-    backgroundColor: '#FFD700',
-    padding: 10,
-    borderRadius: 8,
-    width: '45%',
-    alignItems: 'center',
-  },
-  adjustButtonText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  input: {
-    backgroundColor: '#333',
-    color: '#FFF',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
-  },
-  updateButton: {
-    backgroundColor: '#FFD700',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  motivationText: {
+  settingsButtonText: {
+    fontSize: 30,
     color: '#FFD700',
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 20,
   },
 });
 
