@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
-import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import { getGoals } from '../firebase';  // Firebase'den getGoals fonksiyonunu içe aktar
 
 const ProfileScreen = ({ navigation }) => {
   const [waterGoal, setWaterGoal] = useState(3000);
@@ -12,21 +13,25 @@ const ProfileScreen = ({ navigation }) => {
   const [currentSleep, setCurrentSleep] = useState(6);
 
   useEffect(() => {
-    // Firestore'dan hedefleri yükle
-    const loadGoals = async () => {
+    // Firestore'dan kullanıcı hedeflerini yükle
+    const fetchUserGoals = async () => {
       try {
-        const userDoc = await firestore().collection('users').doc('userId').get();
-        if (userDoc.exists) {
-          const data = userDoc.data();
-          setWaterGoal(data.waterGoal);
-          setStepGoal(data.stepGoal);
-          setSleepGoal(data.sleepGoal);
+        const userId = auth().currentUser.uid;  // Oturum açan kullanıcının kimliğini al
+        const userGoals = await getGoals(userId);  // Hedefleri Firestore'dan getir
+
+        if (userGoals) {
+          setWaterGoal(userGoals.waterGoal);
+          setStepGoal(userGoals.stepGoal);
+          setSleepGoal(userGoals.sleepGoal);
+        } else {
+          alert('Hedef bulunamadı!');
         }
       } catch (error) {
-        console.error("Hedefler yüklenemedi: ", error);
+        console.error('Hedefler alınamadı: ', error);
       }
     };
-    loadGoals();
+    
+    fetchUserGoals();  // Hedefleri al
   }, []);
 
   return (

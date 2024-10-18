@@ -12,7 +12,7 @@ import {
 import { Svg, Path, Text as SvgText, TextPath } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
-import { addGoals, saveUserInfo } from '../firebase'; // Firebase fonksiyonlarını içe aktar
+import { signUpUser, addGoals, saveUserInfo } from '../firebase'; // Firebase fonksiyonlarını içe aktar
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -21,28 +21,29 @@ const LoginScreen = () => {
   const [showSignUp, setShowSignUp] = useState(false); // Formun görünürlüğünü kontrol etmek için
   const animatedValue = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current; // Fade animasyonu
-  const [email, setEmail] = useState(''); // Email için state
-  const [password, setPassword] = useState(''); // Şifre için state
+  const [email, setEmail] = useState('musabbbayramm@hotmail.com'); // Email için state
+  const [password, setPassword] = useState('asdasd123'); // Şifre için state
   const [fullName, setFullName] = useState(''); // Tam ad için state
 
   // SignUp işlemi
   const handleSignUp = async () => {
     try {
-      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
-      const userId = userCredential.user.uid;  // Firebase Authentication'dan kullanıcı id'sini alıyoruz
-
-      // Kullanıcının adı ve soyadını da kaydet
+      const userCredential = await signUpUser(email, password); // Kullanıcıyı kaydet
+      const userId = userCredential.uid;
+  
+      // Kullanıcı bilgilerini kaydet
       await saveUserInfo(userId, fullName, email);
-
-      // Yeni kullanıcı için hedefleri kaydet (varsayılan değerler)
+  
+      // Varsayılan hedefleri oluştur (örnek hedefler)
       await addGoals(userId, 3000, 10000, 8);
-
-      Alert.alert('Başarılı', 'Kayıt işlemi başarılı!');
+  
+      alert('Kayıt başarılı!');
       navigation.navigate('Main');
     } catch (error) {
-      Alert.alert('Hata', error.message);
+      alert('Kayıt başarısız: ' + error.message);
     }
   };
+
 
   // SignUp ekranına geçiş animasyonu
   const navigateToSignUp = () => {

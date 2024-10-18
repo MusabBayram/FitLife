@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import { updateGoals } from '../firebase';  // Firebase fonksiyonunu ekle
 
 const SettingsScreen = ({ route, navigation }) => {
   const { currentWaterGoal, currentStepGoal, currentSleepGoal } = route.params;
@@ -11,15 +12,12 @@ const SettingsScreen = ({ route, navigation }) => {
 
   const saveGoalsToFirebase = async () => {
     try {
-      await firestore().collection('users').doc('userId').set({
-        waterGoal,
-        stepGoal,
-        sleepGoal,
-      });
-      alert('Hedefler başarıyla kaydedildi!');
+      const userId = auth().currentUser.uid; // Kullanıcı kimliğini al
+      await updateGoals(userId, waterGoal, stepGoal, sleepGoal); // Hedefleri güncelle
+      alert('Hedefler başarıyla güncellendi!');
       navigation.goBack();
     } catch (error) {
-      console.error("Hedefler kaydedilemedi: ", error);
+      console.error('Hedefler güncellenemedi: ', error);
     }
   };
 
