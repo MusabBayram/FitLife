@@ -1,6 +1,17 @@
-// firebase.js
-
 import firestore from '@react-native-firebase/firestore';
+
+// Kullanıcı bilgilerini kaydetme fonksiyonu
+export const saveUserInfo = async (userId, fullName, email) => {
+  try {
+    await firestore().collection('users').doc(userId).set({
+      fullName: fullName,
+      email: email,
+    });
+    console.log('User info saved!');
+  } catch (error) {
+    console.error('Error saving user info: ', error);
+  }
+};
 
 // Hedefleri kaydetmek için Firestore'a veri ekleme fonksiyonu
 export const addGoals = async (userId, waterGoal, stepGoal, sleepGoal) => {
