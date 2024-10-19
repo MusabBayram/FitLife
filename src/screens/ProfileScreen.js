@@ -13,12 +13,11 @@ const ProfileScreen = ({ navigation }) => {
   const [currentSleep, setCurrentSleep] = useState(6);
 
   useEffect(() => {
-    // Firestore'dan kullanıcı hedeflerini yükle
     const fetchUserGoals = async () => {
       try {
         const userId = auth().currentUser.uid;  // Oturum açan kullanıcının kimliğini al
         const userGoals = await getGoals(userId);  // Hedefleri Firestore'dan getir
-
+  
         if (userGoals) {
           setWaterGoal(userGoals.waterGoal);
           setStepGoal(userGoals.stepGoal);
@@ -30,9 +29,15 @@ const ProfileScreen = ({ navigation }) => {
         console.error('Hedefler alınamadı: ', error);
       }
     };
-    
-    fetchUserGoals();  // Hedefleri al
-  }, []);
+  
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchUserGoals();  // Sayfa odaklandığında hedefleri tekrar getir
+    });
+  
+    fetchUserGoals();  // İlk yüklemede hedefleri al
+  
+    return unsubscribe;  // Navigasyon dinleyicisini temizle
+  }, [navigation]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

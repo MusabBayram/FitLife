@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { updateGoals } from '../firebase';  // Firebase fonksiyonunu ekle
 
 const SettingsScreen = ({ route, navigation }) => {
   const { currentWaterGoal, currentStepGoal, currentSleepGoal } = route.params;
-  
+
   const [waterGoal, setWaterGoal] = useState(currentWaterGoal);
   const [stepGoal, setStepGoal] = useState(currentStepGoal);
   const [sleepGoal, setSleepGoal] = useState(currentSleepGoal);
@@ -15,7 +15,12 @@ const SettingsScreen = ({ route, navigation }) => {
       const userId = auth().currentUser.uid; // Kullanıcı kimliğini al
       await updateGoals(userId, waterGoal, stepGoal, sleepGoal); // Hedefleri güncelle
       alert('Hedefler başarıyla güncellendi!');
-      navigation.goBack();
+      
+      navigation.navigate('Profil', {
+        updatedWaterGoal: waterGoal,
+        updatedStepGoal: stepGoal,
+        updatedSleepGoal: sleepGoal,
+      });
     } catch (error) {
       console.error('Hedefler güncellenemedi: ', error);
     }
